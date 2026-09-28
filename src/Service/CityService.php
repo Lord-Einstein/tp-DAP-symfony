@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Dto\City\CityListOutput;
+use App\Entity\City;
 use App\Repository\CityRepository;
 
 class CityService
@@ -14,6 +16,13 @@ class CityService
     )
     {
 
+    }
+
+    public function toList(City $city) : CityListOutput {
+        return new CityListOutput(
+            id: $city->getId(),
+            name: $city->getName(),
+        );
     }
 
     public function search(?string $query = null, ?int $limit = 20): array
