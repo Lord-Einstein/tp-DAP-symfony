@@ -16,28 +16,24 @@ class CityRepository extends ServiceEntityRepository
         parent::__construct($registry, City::class);
     }
 
-//    /**
-//     * @return City[] Returns an array of City objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function search(?string $query = null, ?int $limit = 20): array
+{
+    $qb = $this->createQueryBuilder('c')
+        ->orderBy('c.name', 'ASC')
+        ->setMaxResults($limit);
 
-//    public function findOneBySomeField($value): ?City
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    if ($query) {
+        $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
+           ->setParameter('query', '%' . $query . '%');
+    }
+
+    //ici on laisse le moteur SQL mettre en lower un élément puis on gère depuis le code PHP le second
+    // if ($query) {
+    //     $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
+    // ->setParameter('query', '%' . mb_strtolower($query) . '%');
+    // }
+
+    return $qb->getQuery()->getResult();
+}
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\City;
 use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -13,11 +14,9 @@ class AppFixtures extends Fixture
 
     private const PLAIN_PASSWORD = 'motdepasse';
 
-    public function __construct( 
+    public function __construct(
         private readonly UserPasswordHasherInterface $hasher
-    ) { 
-
-    }
+    ) {}
 
     public function load(ObjectManager $manager): void
     {
@@ -46,11 +45,32 @@ class AppFixtures extends Fixture
         $camille->setPassword($this->hasher->hashPassword($camille, self::PLAIN_PASSWORD));
         $manager->persist($camille);
 
-        $manager->flush();
-
         // #endregion
 
-        
+        // #region Cites
+        $cities = [
+            'Paris',
+            'Lyon',
+            'Marseille',
+            'Bordeaux',
+            'Lille',
+            'Strasbourg',
+            'Toulouse',
+            'Nantes',
+            'Dijon',
+            'Brest',
+        ];
+
+        foreach ($cities as $cityName) {
+            $city = (new City())
+                ->setName($cityName)
+                ->setCreatedAt(new DateTimeImmutable());
+
+            $manager->persist($city);
+        }
+        //endregion
+
+        $manager->flush();
 
     }
 }
