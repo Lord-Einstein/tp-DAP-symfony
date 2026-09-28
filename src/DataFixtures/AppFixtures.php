@@ -15,30 +15,29 @@ class AppFixtures extends Fixture
 
     public function __construct( 
         private readonly UserPasswordHasherInterface $hasher
-    )
-    {
+    ) { 
 
     }
 
     public function load(ObjectManager $manager): void
     {
-        //--Users
 
-        $alice = (new User())
+        // #region Users
+        $alice = new User()
             ->setEmail('alice@example.fr')
             ->setCreatedAt(new DateTimeImmutable());
 
         $alice->setPassword($this->hasher->hashPassword($alice, self::PLAIN_PASSWORD));
         $manager->persist($alice);
 
-        $bob = (new User())
+        $bob = new User()
             ->setEmail('bob@example.fr')
             ->setCreatedAt(new DateTimeImmutable());
 
         $bob->setPassword($this->hasher->hashPassword($bob, self::PLAIN_PASSWORD));
         $manager->persist($bob);
 
-        $camille = (new User())
+        $camille = new User()
             ->setEmail('camille.aubert@example.fr')
             ->setFirstName('Camille')
             ->setLastName('Aubert')
@@ -48,5 +47,10 @@ class AppFixtures extends Fixture
         $manager->persist($camille);
 
         $manager->flush();
+
+        // #endregion
+
+        
+
     }
 }
