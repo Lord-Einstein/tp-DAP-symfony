@@ -9,7 +9,7 @@ use App\Repository\CityRepository;
 class CityService
 {
     private const MAX_RESULTS = 100;
-    private const DEFAULT_LIMIT = 20;
+    public const DEFAULT_LIMIT = 20;
 
     public function __construct(
         private readonly CityRepository $cityRepository
@@ -27,7 +27,9 @@ class CityService
 
     public function search(?string $query = null, ?int $limit = 20): array
     {
-        if(trim($query) === ''){
+        $query = trim($query);
+
+        if($query === ''){
             $query = null;
         }
 

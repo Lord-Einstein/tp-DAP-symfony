@@ -6,12 +6,16 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\CityRepository;
+use App\State\City\CityCollectionProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ApiResource(
+    // GET /api/cities
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            provider: CityCollectionProvider::class
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: CityRepository::class)]

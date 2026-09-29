@@ -17,23 +17,23 @@ class CityRepository extends ServiceEntityRepository
     }
 
     public function search(?string $query = null, ?int $limit = 20): array
-{
-    $qb = $this->createQueryBuilder('c')
-        ->orderBy('c.name', 'ASC')
-        ->setMaxResults($limit);
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->orderBy('c.name', 'ASC')
+            // ->andWhere('c.deletedAt IS NULL')
+            ->setMaxResults($limit);
 
-    if ($query) {
-        $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
-           ->setParameter('query', '%' . $query . '%');
+        if ($query) {
+            $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
+                ->setParameter('query', '%' . $query . '%');
+        }
+
+        //ici on laisse le moteur SQL mettre en lower un élément puis on gère depuis le code PHP le second
+        // if ($query) {
+        //     $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
+        // ->setParameter('query', '%' . mb_strtolower($query) . '%');
+        // }
+
+        return $qb->getQuery()->getResult();
     }
-
-    //ici on laisse le moteur SQL mettre en lower un élément puis on gère depuis le code PHP le second
-    // if ($query) {
-    //     $qb->andWhere('LOWER(c.name) LIKE LOWER(:query)')
-    // ->setParameter('query', '%' . mb_strtolower($query) . '%');
-    // }
-
-    return $qb->getQuery()->getResult();
-}
-
 }
