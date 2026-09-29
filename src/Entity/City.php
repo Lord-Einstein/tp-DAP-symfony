@@ -17,6 +17,7 @@ use Symfony\Component\Uid\Uuid;
     // GET /api/cities
     operations: [
         new GetCollection(
+            uriTemplate:'/cities',
             provider: CityCollectionProvider::class,
             output:CityListOutput::class,
             paginationEnabled: false,
