@@ -4,17 +4,39 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Dto\City\CityListOutput;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\CityRepository;
 use App\State\City\CityCollectionProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
+
 #[ApiResource(
     // GET /api/cities
     operations: [
         new GetCollection(
-            provider: CityCollectionProvider::class
+            provider: CityCollectionProvider::class,
+            output:CityListOutput::class,
+            paginationEnabled: false,
+            parameters: [
+                'q' => new QueryParameter(
+                    description: 'Filtre textuel sur le nom de la ville, Insensible à la casse et aux accents.',
+                    schema: [
+                        'type' => 'string'
+                    ],
+                ),
+                'limit' => new QueryParameter(
+                    description: 'Nombre maximum de villes retournées.',
+                    schema: [
+                        'type' => 'integer',
+                        'minimum' => 1,
+                        'maximum' => 100,
+                        'default' => 20,
+                    ],
+                )
+            ]
         ),
     ]
 )]
