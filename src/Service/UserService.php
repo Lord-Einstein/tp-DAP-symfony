@@ -3,10 +3,12 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Exception\User\EmailAlreadyUsedException;
 use App\Repository\UserRepository;
 use App\Service\Utils\AuditService;
 use Dto\User\UserDetailsOutput;
 use Dto\User\UserRegisterInput;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
@@ -15,10 +17,18 @@ class UserService
         private readonly UserRepository $userRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditService $audit,
+        private readonly LoggerInterface $domainLogger,
     ) {}
 
     public function register(UserRegisterInput $input): User 
     {
+
+        $existingUser = $this->userRepository->findOneByEmail($input->email);
+
+        if($existingUser){
+            throw new EmailAlreadyUsedException();
+        }
+
         $user = new User()
             ->setEmail($input->email)
             ->setFirstName($input->firstName)

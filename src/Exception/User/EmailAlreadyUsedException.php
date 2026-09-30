@@ -2,10 +2,17 @@
 
 namespace App\Exception\User;
 
-class EmailAlreadyUsedException extends \RuntimeException
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
+// class EmailAlreadyUsedException extends \RuntimeException
+class EmailAlreadyUsedException extends HttpException
 {
     public function __construct()
     {
-
+        parent::__construct(
+            Response::HTTP_CONFLICT,
+            'Adresse email déjà utilisée.'
+        );
     }
 }
