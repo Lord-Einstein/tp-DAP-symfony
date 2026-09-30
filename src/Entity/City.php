@@ -25,7 +25,9 @@ use Symfony\Component\Uid\Uuid;
                 'q' => new QueryParameter(
                     description: 'Filtre textuel sur le nom de la ville, Insensible à la casse et aux accents.',
                     schema: [
-                        'type' => 'string'
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 255,
                     ],
                 ),
                 'limit' => new QueryParameter(

@@ -4,6 +4,7 @@ namespace Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\Utils\AuditService;
 use Dto\User\UserRegisterInput;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -12,6 +13,7 @@ class UserService
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly AuditService $audit,
     ) {}
 
     public function register(UserRegisterInput $input): User 
@@ -23,6 +25,8 @@ class UserService
 
         $password = $this->passwordHasher->hashPassword($user, $input->password);
         $user->setPassword($password);
+
+        $this->audit->stampCreation($user);
 
         $this->userRepository->persist($user);
         $this->userRepository->flush();
