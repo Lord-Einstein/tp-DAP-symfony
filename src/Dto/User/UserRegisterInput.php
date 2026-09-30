@@ -1,6 +1,6 @@
 <?php
 
-namespace Dto\User;
+namespace App\Dto\User;
 
 
 use ApiPlatform\Metadata\ApiProperty;

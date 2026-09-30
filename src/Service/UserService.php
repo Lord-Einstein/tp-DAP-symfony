@@ -6,8 +6,8 @@ use App\Entity\User;
 use App\Exception\User\EmailAlreadyUsedException;
 use App\Repository\UserRepository;
 use App\Service\Utils\AuditService;
-use Dto\User\UserDetailsOutput;
-use Dto\User\UserRegisterInput;
+use App\Dto\User\UserDetailsOutput;
+use App\Dto\User\UserRegisterInput;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -26,6 +26,7 @@ class UserService
         $existingUser = $this->userRepository->findOneByEmail($input->email);
 
         if($existingUser){
+            $this->domainLogger->error('User already registered');
             throw new EmailAlreadyUsedException();
         }
 
@@ -41,6 +42,8 @@ class UserService
 
         $this->userRepository->persist($user);
         $this->userRepository->flush();
+
+        $this->domainLogger->info('User registered', ['user_id' => $user->getId()->toRfc4122()]);
 
         return $user;
     }
