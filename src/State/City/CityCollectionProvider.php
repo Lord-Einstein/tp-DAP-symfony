@@ -7,7 +7,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\Dto\City\CityListOutput;
 use App\Service\CityService;
 
-class CityCollectionProvider implements ProviderInterface
+final class CityCollectionProvider implements ProviderInterface
 {
     // le service n'est pas construit ici, il est demandé au conteneur
     public function __construct(

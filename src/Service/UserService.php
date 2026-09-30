@@ -1,6 +1,6 @@
 <?php
 
-namespace Service;
+namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -42,7 +42,6 @@ class UserService
             email: $user->getEmail(),
             firstName: $user->getFirstName(),
             lastName: $user->getLastName(),
-            password: $user->getPassword(),
             createdAt: $user->getCreatedAt(),
         );
     }

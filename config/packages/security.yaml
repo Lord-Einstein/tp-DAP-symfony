@@ -18,6 +18,7 @@ security:
             security: false
         main:
             lazy: true
+            stateless: true
             provider: app_user_provider
 
             # Activate different ways to authenticate:

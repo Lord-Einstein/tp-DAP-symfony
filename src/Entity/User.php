@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Dto\User\UserDetailsOutput;
 use Dto\User\UserRegisterInput;
+use App\State\User\UserRegisterProcessor;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
@@ -20,6 +21,7 @@ use Symfony\Component\Uid\Uuid;
             uriTemplate: '/auth/register',
             input: UserRegisterInput::class,
             output: UserDetailsOutput::class,
+            processor: UserRegisterProcessor::class
         )
     ]
 )]

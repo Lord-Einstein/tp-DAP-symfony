@@ -31,18 +31,6 @@ class UserDetailsOutput
         )]
         public string $email,
 
-        #[ApiProperty(
-            schema: [
-                'description' => "Le mot de passe de l'utilisateur (doit etre sécurisé).",
-                'type' => 'string',
-                'format' => 'password',
-                'minLength' => 8,
-                'maxLength' => 255,
-                'example' => "SuperMegaMotDEP4SSE.",
-            ],
-            required: true,
-        )]
-        public string $password,
 
         #[ApiProperty(
             schema: [
