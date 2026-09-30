@@ -4,13 +4,14 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Impl\AbstractEntity;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Dto\User\UserDetailsOutput;
+use Dto\User\UserRegisterInput;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
-use App\Entity\Impl\AbstractEntity;
-use Dto\User\UserRegisterInput;
 
 
 #[ApiResource(
@@ -18,9 +19,7 @@ use Dto\User\UserRegisterInput;
         new Post(
             uriTemplate: '/auth/register',
             input: UserRegisterInput::class,
-
-            
-
+            output: UserDetailsOutput::class,
         )
     ]
 )]

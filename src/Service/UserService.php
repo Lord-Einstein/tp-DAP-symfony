@@ -5,6 +5,7 @@ namespace Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\Utils\AuditService;
+use Dto\User\UserDetailsOutput;
 use Dto\User\UserRegisterInput;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -32,5 +33,17 @@ class UserService
         $this->userRepository->flush();
 
         return $user;
+    }
+
+    public function toDetails(User $user): UserDetailsOutput
+    {
+        return new UserDetailsOutput(
+            id: $user->getId(),
+            email: $user->getEmail(),
+            firstName: $user->getFirstName(),
+            lastName: $user->getLastName(),
+            password: $user->getPassword(),
+            createdAt: $user->getCreatedAt(),
+        );
     }
 }
