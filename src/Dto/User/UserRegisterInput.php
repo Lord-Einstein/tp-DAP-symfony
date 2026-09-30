@@ -15,11 +15,11 @@ class UserRegisterInput
                 'type' => 'string',
                 'format' => 'email',
                 'description' => "L'email de l'utilisateur (doit être unique).",
-                'minLenght' => 3,
-                'maxLenght' => 255,
+                'minLength' => 3,
+                'maxLength' => 255,
                 'example' => "user@example.com",
-                'required' => true,
             ],
+            required: true
         )]
         public string $email,
 
@@ -30,11 +30,11 @@ class UserRegisterInput
                 'type' => 'integer',
                 'format' => 'password',
                 'description' => "Le mot de passe de l'utilisateur (doit etre sécurisé).",
-                'minLenght' => 8,
-                'maxLenght' => 255,
+                'minLength' => 8,
+                'maxLength' => 255,
                 'example' => "SuperMegaMotDEP4SSE.",
-                'required' => true,
             ],
+            required: true
         )]
         public string $password,
 
@@ -43,10 +43,9 @@ class UserRegisterInput
         #[ApiProperty(schema: [
                 'type' => 'string',
                 'description' => "Le prénom de l'utilisateur.",
-                'minLenght' => 3,
-                'maxLenght' => 255,
+                'minLength' => 3,
+                'maxLength' => 255,
                 'example' => "Alex",
-                'required' => false,
             ],
         )]
         public ?string $firstName = null,
@@ -56,10 +55,9 @@ class UserRegisterInput
         #[ApiProperty(schema: [
                 'type' => 'string',
                 'description' => "Le prénom de l'utilisateur.",
-                'minLenght' => 3,
-                'maxLenght' => 255,
+                'minLength' => 3,
+                'maxLength' => 255,
                 'example' => "DUPONT",
-                'required' => false,
             ],
         )]
         public ?string $lastName = null,

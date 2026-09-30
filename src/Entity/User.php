@@ -12,20 +12,22 @@ use Symfony\Component\Uid\Uuid;
 use App\Entity\Impl\AbstractEntity;
 use Dto\User\UserRegisterInput;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 
 #[ApiResource(
     operations: [
         new Post(
             uriTemplate: '/auth/register',
             input: UserRegisterInput::class,
+
             
 
         )
     ]
 )]
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 
 class User  extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -130,7 +132,7 @@ class User  extends AbstractEntity implements UserInterface, PasswordAuthenticat
     {
         $data = (array) $this;
         $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-        
+
         return $data;
     }
 
