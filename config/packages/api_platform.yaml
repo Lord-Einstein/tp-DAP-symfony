@@ -16,3 +16,9 @@ api_platform:
         jsonproblem: ['application/problem+json']
     # exception_to_status:
     #     App\Exception\User\EmailAlreadyUsedException: 409
+    swagger:
+        http_auth:
+            bearerAuth:
+                scheme: bearer
+                bearerFormat: JWT
+        persist_authorization: true

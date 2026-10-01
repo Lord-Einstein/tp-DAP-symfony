@@ -11,6 +11,7 @@ use App\Repository\CityRepository;
 use App\State\City\CityCollectionProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 
 
 #[ApiResource(
@@ -21,6 +22,9 @@ use Symfony\Component\Uid\Uuid;
             provider: CityCollectionProvider::class,
             output:CityListOutput::class,
             paginationEnabled: false,
+            openapi: new OpenApiOperation(
+                security: []
+            ),
             parameters: [
                 'q' => new QueryParameter(
                     description: 'Filtre textuel sur le nom de la ville, Insensible à la casse et aux accents.',
@@ -39,7 +43,7 @@ use Symfony\Component\Uid\Uuid;
                         'default' => 20,
                     ],
                 )
-            ]
+            ],
         ),
     ]
 )]

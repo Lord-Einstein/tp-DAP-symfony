@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 
 
 #[ApiResource(
@@ -23,7 +24,10 @@ use Symfony\Component\Uid\Uuid;
             uriTemplate: '/auth/register',
             input: UserRegisterInput::class,
             output: UserDetailsOutput::class,
-            processor: UserRegisterProcessor::class
+            processor: UserRegisterProcessor::class,
+            openapi: new OpenApiOperation(
+                security: []
+            ),
         ),
 
         new Get(

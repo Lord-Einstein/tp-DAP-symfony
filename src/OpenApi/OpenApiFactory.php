@@ -23,10 +23,14 @@ final class OpenApiFactory implements OpenApiFactoryInterface
         $openApi = ($this->decorated)($context);
         $paths = $openApi->getPaths();
 
+        $schemas = $openApi->getComponents()->getSecuritySchemes();
+        unset($schemas['JWT']);
+
         $paths->addPath('/api/auth/login', new PathItem(post: new Operation(
             operationId: 'login',
             tags: ['Authentification'],
             summary: 'Se connecter',
+            security: [],
             requestBody: new RequestBody(
                 required: true,
                 content: new \ArrayObject([
@@ -56,7 +60,6 @@ final class OpenApiFactory implements OpenApiFactoryInterface
                 ],
                 '401' => ['description' => 'Identifiants invalides.'],
             ],
-            security: [],
         )));
 
         $paths->addPath('/api/auth/refresh', new PathItem(post: new Operation(
@@ -77,7 +80,7 @@ final class OpenApiFactory implements OpenApiFactoryInterface
             ),
             responses: [
                 '200' => [
-                    'description' => 'Jetons délivrés.',
+                    'description' => "Jetons d'accès renouvelés.",
                     'content' => new \ArrayObject([
                         'application/json' => ['schema' => [
                             'type' => 'object',
