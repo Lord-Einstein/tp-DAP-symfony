@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO\Trip;
+namespace App\Dto\Trip;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\Dto\City\CityListOutput;

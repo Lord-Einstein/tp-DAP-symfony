@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\Trip\TripListOutput;
+use App\Dto\Trip\TripListOutput;
 use App\Dto\Trip\TripSearchInput;
 use App\Entity\Trip;
 use App\Repository\TripRepository;
