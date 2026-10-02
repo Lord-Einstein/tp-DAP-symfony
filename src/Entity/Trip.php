@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
 
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
@@ -28,7 +29,21 @@ use Symfony\Component\Uid\Uuid;
         output: TripListOutput::class,
         processor: TripSearchProcessor::class,
         // on cherche un lancer sans être connecté : le contrat déclare l'opération publique
-        openapi: new OpenApiOperation(security: []),
+        openapi: new OpenApiOperation(
+            security: [],
+            // le générateur déduit la réponse du `output:`, qui nomme une classe et non un tableau :
+            // il annonce un objet unique là où l'API rend une liste. On corrige la documentation.
+            responses: ['200' => new OpenApiResponse(
+                description: 'Les lancers disponibles',
+                content: new \ArrayObject(['application/json' => ['schema' => [
+                    'type' => 'array',
+                    // le nom relevé au point 3, pas celui que le contrat écrit
+                    'items' => ['$ref' => '#/components/schemas/Trip.TripListOutput'],
+                ]]]),
+            )],
+        ),
+
+
     ),
 ])]
 
