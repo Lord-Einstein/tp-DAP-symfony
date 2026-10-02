@@ -3,19 +3,22 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
+use App\Dto\Trip\TripDetailsOutput;
 use App\Dto\Trip\TripListOutput;
 use App\Dto\Trip\TripSearchInput;
 use App\Entity\Enum\CatapultModel;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\TripRepository;
+use App\State\Trip\TripItemProvider;
 use App\State\Trip\TripSearchProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
-use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
 
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
@@ -42,8 +45,13 @@ use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
                 ]]]),
             )],
         ),
-
-
+    ),
+    new Get(
+        uriTemplate: '/trips/{id}',
+        output: TripDetailsOutput::class,
+        provider: TripItemProvider::class,
+        // on consulte un lancer sans être connecté : le contrat déclare l'opération publique
+        openapi: new OpenApiOperation(security: []),
     ),
 ])]
 
