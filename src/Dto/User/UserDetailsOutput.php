@@ -5,7 +5,7 @@ namespace App\Dto\User;
 use ApiPlatform\Metadata\ApiProperty;
 use DateTimeImmutable;
 
-class UserDetailsOutput
+final class UserDetailsOutput
 {
     public function __construct(
         #[ApiProperty(

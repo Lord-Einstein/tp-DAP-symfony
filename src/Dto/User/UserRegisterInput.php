@@ -6,7 +6,7 @@ namespace App\Dto\User;
 use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRegisterInput
+final class UserRegisterInput
 {
     public function __construct(
         #[Assert\NotBlank]

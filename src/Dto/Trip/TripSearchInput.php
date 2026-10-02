@@ -5,7 +5,7 @@ namespace App\Dto\Trip;
 use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class TripSearchInput
+final class TripSearchInput
 {
     public function __construct(
 

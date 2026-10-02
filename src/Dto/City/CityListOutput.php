@@ -4,7 +4,7 @@ namespace App\Dto\City;
 
 use ApiPlatform\Metadata\ApiProperty;
 
-class CityListOutput
+final class CityListOutput
 {
     public function __construct(
         #[ApiProperty(
