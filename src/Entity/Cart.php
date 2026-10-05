@@ -5,13 +5,16 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Dto\Cart\CartAddLineInput;
 use App\Dto\Cart\CartDetailsOutput;
 use App\Entity\CartItem;
 use App\Entity\Enum\CartStatus;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\CartRepository;
+use App\State\Cart\CartAddLineProcessor;
 use App\State\Cart\CartCollectionProvider;
 use App\State\Cart\CartOpenProcessor;
+use App\State\Cart\CartProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,6 +41,17 @@ use Symfony\Component\Uid\Uuid;
         provider: CartCollectionProvider::class,
         security: "is_granted('ROLE_USER')",
     ),
+
+    new Post(
+        uriTemplate: '/carts/{id}/items',
+        input: CartAddLineInput::class,
+        output: CartDetailsOutput::class,
+        provider: CartProvider::class,
+        processor: CartAddLineProcessor::class,
+        // le rendez-vous suivant explique cette ligne et la met à l'épreuve
+        security: "object.getCreatedBy() == user",
+    ),
+
 ])]
 
 class Cart extends AbstractEntity

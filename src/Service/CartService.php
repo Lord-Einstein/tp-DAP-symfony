@@ -2,14 +2,17 @@
 
 namespace App\Service;
 
+use App\Dto\Cart\CartAddLineInput;
 use App\Dto\Cart\CartDetailsOutput;
 use App\Dto\Cart\CartLineOutput;
 use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\User;
 use App\Exception\Cart\CartNotFoundException;
+use App\Exception\Trip\TripNotFoundException;
 use App\Repository\CartRepository;
 use App\Service\Utils\AuditService;
+use Symfony\Component\Uid\Uuid;
 
 class CartService
 {
@@ -49,11 +52,7 @@ class CartService
         );
     }
 
-    /**
-     * Returns the cart carrying this identifier.
-     *
-     * @throws CartNotFoundException when no cart carries this identifier
-     */
+    
     public function findActiveFor(User $user): ?Cart
     {
         return $this->cartRepository->findActiveFor($user);
@@ -71,6 +70,46 @@ class CartService
         $this->auditService->stampCreation($cart);
 
         $this->cartRepository->persist($cart);
+        $this->cartRepository->flush();
+
+        return $cart;
+    }
+
+    /**
+     * Returns the cart carrying this identifier.
+     *
+     * @throws CartNotFoundException when no cart carries this identifier
+     */
+    public function findOneById(Uuid $id): Cart
+    {
+        $cart = $this->cartRepository->find($id);
+
+        if ($cart === null) {
+            throw new CartNotFoundException();
+        }
+        
+        return $cart;
+    }
+
+    /**
+     * Adds a line to this cart and returns the cart itself.
+     *
+     * @throws TripNotFoundException when no trip carries the submitted identifier
+     */
+    public function addLine(Cart $cart, CartAddLineInput $input): Cart 
+    {
+        
+        $trip = $this->tripService->findOneById(Uuid::fromString($input->tripId));
+
+        $cartItem = new CartItem()
+            ->setTrip($trip)
+            ->setPassengers($input->passengers);
+
+        $this->auditService->stampCreation($cartItem);
+        
+        $cart->addItem($cartItem);
+
+        //pas de flush ici à cause du cascade persist
         $this->cartRepository->flush();
 
         return $cart;
