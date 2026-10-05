@@ -7,6 +7,7 @@ use App\Dto\Cart\CartLineOutput;
 use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\User;
+use App\Exception\Cart\CartNotFoundException;
 use App\Repository\CartRepository;
 use App\Service\Utils\AuditService;
 
@@ -16,7 +17,7 @@ class CartService
         private readonly CartRepository $cartRepository,
         private readonly TripService $tripService,
         private readonly AuditService $auditService,
-    ){}
+    ) {}
 
     public function toLine(CartItem $item): CartLineOutput
     {
@@ -42,12 +43,17 @@ class CartService
             //     (int $total, CartItem $item) 
             //         => $total + $item->getTrip()->getPrice() * $item->getPassengers()
             // ),
-            
+
             total: array_sum(array_column($lines, 'subtotal')),
             createdAt: $cart->getCreatedAt(),
         );
     }
 
+    /**
+     * Returns the cart carrying this identifier.
+     *
+     * @throws CartNotFoundException when no cart carries this identifier
+     */
     public function findActiveFor(User $user): ?Cart
     {
         return $this->cartRepository->findActiveFor($user);
@@ -56,10 +62,10 @@ class CartService
     public function open(User $user): Cart
     {
         $existing = $this->findActiveFor($user);
-        if($existing !== null) {
+        if ($existing !== null) {
             return $existing;
         }
-       
+
         $cart = new Cart();
 
         $this->auditService->stampCreation($cart);
