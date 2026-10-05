@@ -3,12 +3,14 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Dto\Cart\CartDetailsOutput;
 use App\Entity\CartItem;
 use App\Entity\Enum\CartStatus;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\CartRepository;
+use App\State\Cart\CartCollectionProvider;
 use App\State\Cart\CartOpenProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,6 +28,14 @@ use Symfony\Component\Uid\Uuid;
         output: CartDetailsOutput::class,
         processor: CartOpenProcessor::class,
         // toutes les opérations du panier exigent un jeton, comme `/users/me` à l'étape 5
+        security: "is_granted('ROLE_USER')",
+    ),
+
+    new Get(
+        uriTemplate: '/carts',
+        paginationClientEnabled:false,
+        output: CartDetailsOutput::class,
+        provider: CartCollectionProvider::class,
         security: "is_granted('ROLE_USER')",
     ),
 ])]
