@@ -19,6 +19,7 @@ class CartRemoveLineProcessor implements ProcessorInterface
         $cart = $data;
         $lineId = Uuid::fromString($uriVariables['itemId']);
         $this->cartService->removeLine($cart, $lineId);
+        
         return null;
     }
 }
