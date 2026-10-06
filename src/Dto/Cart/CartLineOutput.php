@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use App\Dto\Trip\TripListOutput;
 use Symfony\Component\Uid\Uuid;
 
+
 final class CartLineOutput
 {
     public function __construct(

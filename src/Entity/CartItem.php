@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\CartItemRepository;
 use Doctrine\DBAL\Types\Types;
@@ -31,6 +32,7 @@ class CartItem extends AbstractEntity
     private Trip $trip;
 
     #[ORM\Column(type: Types::INTEGER)]
+    #[ApiProperty(description: 'The number of passengers travelling on this ticket')]
     private int $passengers;
 
     public function __construct()
