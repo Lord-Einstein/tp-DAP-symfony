@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Dto\Cart\CartAddLineInput;
 use App\Dto\Cart\CartDetailsOutput;
 use App\Entity\CartItem;
@@ -15,6 +18,7 @@ use App\State\Cart\CartAddLineProcessor;
 use App\State\Cart\CartCollectionProvider;
 use App\State\Cart\CartOpenProcessor;
 use App\State\Cart\CartProvider;
+use App\State\Cart\CartRemoveLineProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -44,12 +48,47 @@ use Symfony\Component\Uid\Uuid;
 
     new Post(
         uriTemplate: '/carts/{id}/items',
+        uriVariables: [
+            'id' => new Link(schema: [
+                'type' => 'string',
+                'format' => 'uuid',
+            ])
+        ],
         input: CartAddLineInput::class,
         output: CartDetailsOutput::class,
         provider: CartProvider::class,
         processor: CartAddLineProcessor::class,
         // le rendez-vous suivant explique cette ligne et la met à l'épreuve
         security: "object.getCreatedBy() == user",
+        openapi: new OpenApiOperation(
+            summary: "Add a line to this cart.",
+            description: "Adds a line to this cart, returning the updated cart.",
+        )
+    ),
+
+    new Delete(
+        uriTemplate: '/carts/{id}/items/{itemId}',
+        uriVariables: [
+            'id' => new Link(schema: [
+                'type' => 'string',
+                'format' => 'uuid',
+            ]),
+            'itemId' => new Link(
+                fromClass: CartItem::class,
+                fromProperty: 'id',
+                schema: [
+                    'type' => 'string',
+                    'format' => 'uuid',
+                ]
+            ),
+        ],
+        provider: CartProvider::class,
+        processor: CartRemoveLineProcessor::class,
+        security: "object.getCreatedBy() == user",
+        openapi: new OpenApiOperation(
+            summary: "Delete a line from this cart.",
+            description: "Deletes a line from this cart, returning the updated cart.",
+        )
     ),
 
 ])]

@@ -7,7 +7,10 @@ use App\Dto\Cart\CartDetailsOutput;
 use App\Dto\Cart\CartLineOutput;
 use App\Entity\Cart;
 use App\Entity\CartItem;
+use App\Entity\Enum\CartStatus;
 use App\Entity\User;
+use App\Exception\Cart\CartAlreadyPaidException;
+use App\Exception\Cart\CartLineNotFoundException;
 use App\Exception\Cart\CartNotFoundException;
 use App\Exception\Trip\TripNotFoundException;
 use App\Repository\CartRepository;
@@ -43,7 +46,7 @@ class CartService
 
             // total: array_reduce(
             //     $cart->getItems()->toArray(),
-            //     (int $total, CartItem $item) 
+            //     (int $total, CartItem $item)
             //         => $total + $item->getTrip()->getPrice() * $item->getPassengers()
             // ),
 
@@ -52,7 +55,7 @@ class CartService
         );
     }
 
-    
+
     public function findActiveFor(User $user): ?Cart
     {
         return $this->cartRepository->findActiveFor($user);
@@ -87,7 +90,7 @@ class CartService
         if ($cart === null) {
             throw new CartNotFoundException();
         }
-        
+
         return $cart;
     }
 
@@ -95,10 +98,14 @@ class CartService
      * Adds a line to this cart and returns the cart itself.
      *
      * @throws TripNotFoundException when no trip carries the submitted identifier
+     * @throws CartAlreadyPaidException when the cart is already paid
      */
-    public function addLine(Cart $cart, CartAddLineInput $input): Cart 
+    public function addLine(Cart $cart, CartAddLineInput $input): Cart
     {
-        
+        if ($cart->getStatus() === CartStatus::Paid) {
+            throw new CartAlreadyPaidException();
+        }
+
         $trip = $this->tripService->findOneById(Uuid::fromString($input->tripId));
 
         $cartItem = new CartItem()
@@ -106,12 +113,54 @@ class CartService
             ->setPassengers($input->passengers);
 
         $this->auditService->stampCreation($cartItem);
-        
+
         $cart->addItem($cartItem);
 
         //pas de flush ici à cause du cascade persist
         $this->cartRepository->flush();
 
         return $cart;
+    }
+
+    /**
+     * Soft-deletes a line of this cart, and the cart itself when it was the last one.
+     *
+     * @throws CartAlreadyPaidException  when the cart is no longer modifiable
+     * @throws CartLineNotFoundException when this cart carries no such line
+    */
+    public function removeLine(Cart $cart, Uuid $lineId): void
+    {
+        if ($cart->getStatus() === CartStatus::Paid) {
+            throw new CartAlreadyPaidException();
+        }
+
+        $line = $cart
+            ->getItems()
+            ->findFirst(
+                static fn($_, CartItem $item): bool  => $item->getId()->equals($lineId),
+            );
+
+        if ($line === null) {
+            throw new CartLineNotFoundException();
+        }
+
+        $this->auditService->markDeleted($line);
+
+        $alive = $cart
+            ->getItems()
+            ->filter(
+                static fn(CartItem $item): bool  => $item->getDeletedAt() === null,
+            );
+
+        // $alive = array_filter(
+        //     $cart->getItems()->toArray(),
+        //     fn(CartItem $item) => $item->getDeletedAt() === null,
+        // );
+
+        if($alive->isEmpty()) {
+            $this->auditService->markDeleted($cart);
+        }
+
+        $this->cartRepository->flush();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\City\CityListOutput;
+use App\Dto\City\CityListOutput;
 use App\Entity\City;
 use App\Exception\City\CityNotFoundException;
 use App\Repository\CityRepository;
