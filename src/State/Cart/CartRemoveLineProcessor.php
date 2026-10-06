@@ -4,35 +4,21 @@ namespace App\State\Cart;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Cart;
-use App\Entity\User;
 use App\Service\CartService;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Uid\Uuid;
 
-/**
- * @implements ProcessorInterface<Cart, null>
- */
-final class CartRemoveLineProcessor implements ProcessorInterface
+class CartRemoveLineProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly CartService $cartService,
-        private readonly Security $security,
-    ){}
-
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null
-    {
-        $user = $this->security->getUser();
-
-        if(!$user instanceof User) {
-            throw new AccessDeniedException();
-        }
-
-        $cart = $this->cartService->findOneById($uriVariables['id']);
-        $this->cartService->removeLine($cart, $uriVariables['itemId']);
-
-        return null;
-        
+        private CartService $cartService,
+    ) {
     }
-    
+
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    {
+        $cart = $data;
+        $lineId = Uuid::fromString($uriVariables['itemId']);
+        $this->cartService->removeLine($cart, $lineId);
+        return null;
+    }
 }

@@ -151,12 +151,7 @@ class CartService
             ->filter(
                 static fn(CartItem $item): bool  => $item->getDeletedAt() === null,
             );
-
-        // $alive = array_filter(
-        //     $cart->getItems()->toArray(),
-        //     fn(CartItem $item) => $item->getDeletedAt() === null,
-        // );
-
+            
         if($alive->isEmpty()) {
             $this->auditService->markDeleted($cart);
         }
