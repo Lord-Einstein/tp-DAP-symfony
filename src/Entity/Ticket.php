@@ -2,14 +2,30 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use App\Dto\Ticket\TicketListOutput;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\TicketRepository;
+use App\State\Ticket\TicketCollectionProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
+
+#[ApiResource( operations: [
+        new Get(
+            uriTemplate: '/tickets',
+            input: false,
+            output: TicketListOutput::class,
+            provider: TicketCollectionProvider::class,
+            security: "is_granted('ROLE_USER')",
+        ),
+    ]
+)]
+
 class Ticket extends AbstractEntity
 {
     #[ORM\Id]

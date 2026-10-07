@@ -6,6 +6,7 @@ use App\Dto\Ticket\TicketListOutput;
 use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\Ticket;
+use App\Entity\User;
 use App\Repository\TicketRepository;
 use App\Service\Utils\AuditService;
 
@@ -64,6 +65,15 @@ class TicketService
             createdAt: $ticket->getCreatedAt(),
 
         );
+    }
+
+    /**
+     * Returns the tickets issued by the user.
+     * @return Ticket[]
+     */
+    public function findFor(User $user): array
+    {
+        return $this->ticketRepository->findFor($user);
     }
 
 }
