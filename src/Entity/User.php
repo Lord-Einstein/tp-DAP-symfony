@@ -72,6 +72,9 @@ class User  extends AbstractEntity implements UserInterface, PasswordAuthenticat
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;
 
+    #[ORM\ManyToOne]
+    private ?Document $profilePicture = null;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -172,6 +175,18 @@ class User  extends AbstractEntity implements UserInterface, PasswordAuthenticat
     public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getProfilePicture(): ?Document
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(?Document $profilePicture): static
+    {
+        $this->profilePicture = $profilePicture;
 
         return $this;
     }

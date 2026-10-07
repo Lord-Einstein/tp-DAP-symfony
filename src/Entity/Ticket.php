@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Dto\Ticket\TicketListOutput;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\TicketRepository;
@@ -16,7 +16,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 
 #[ApiResource( operations: [
-        new Get(
+        new GetCollection(
             uriTemplate: '/tickets',
             input: false,
             output: TicketListOutput::class,
