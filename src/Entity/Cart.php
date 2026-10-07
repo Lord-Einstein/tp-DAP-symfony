@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use App\Dto\Cart\CartAddLineInput;
 use App\Dto\Cart\CartDetailsOutput;
+use App\Dto\Cart\CartPayInput;
 use App\Entity\CartItem;
 use App\Entity\Enum\CartStatus;
 use App\Entity\Impl\AbstractEntity;
@@ -17,11 +18,13 @@ use App\Repository\CartRepository;
 use App\State\Cart\CartAddLineProcessor;
 use App\State\Cart\CartCollectionProvider;
 use App\State\Cart\CartOpenProcessor;
+use App\State\Cart\CartPayProcessor;
 use App\State\Cart\CartProvider;
 use App\State\Cart\CartRemoveLineProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Dto\Cart\CartPayOutput;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
@@ -89,6 +92,16 @@ use Symfony\Component\Uid\Uuid;
             summary: "Delete a line from this cart.",
             description: "Deletes a line from this cart, returning the updated cart.",
         )
+    ),
+
+    new Post(
+        uriTemplate: '/carts/{id}/pay',
+        input: CartPayInput::class,
+        output: CartPayOutput::class,
+        provider: CartProvider::class,
+        processor: CartPayProcessor::class,
+        security: "object.getCreatedBy() == user",
+        status: 200,
     ),
 
 ])]

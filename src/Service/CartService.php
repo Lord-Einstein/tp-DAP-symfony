@@ -8,13 +8,16 @@ use App\Dto\Cart\CartLineOutput;
 use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\Enum\CartStatus;
+use App\Entity\Ticket;
 use App\Entity\User;
 use App\Exception\Cart\CartAlreadyPaidException;
+use App\Exception\Cart\CartEmptyException;
 use App\Exception\Cart\CartLineNotFoundException;
 use App\Exception\Cart\CartNotFoundException;
 use App\Exception\Trip\TripNotFoundException;
 use App\Repository\CartRepository;
 use App\Service\Utils\AuditService;
+use App\Dto\Cart\CartPayOutput;
 use Symfony\Component\Uid\Uuid;
 
 class CartService
@@ -23,6 +26,7 @@ class CartService
         private readonly CartRepository $cartRepository,
         private readonly TripService $tripService,
         private readonly AuditService $auditService,
+        private readonly TicketService $ticketService,
     ) {}
 
     public function toLine(CartItem $item): CartLineOutput
@@ -157,5 +161,59 @@ class CartService
         }
 
         $this->cartRepository->flush();
+    }
+
+    /**
+     * Pays this cart: issues its tickets and marks it as paid, in a single write.
+     *
+     * @return Ticket[] the tickets issued
+     *
+     * @throws CartAlreadyPaidException when the cart has already been paid
+     * @throws CartEmptyException       when the cart carries no line
+    */
+    public function pay(Cart $cart): array
+    {
+        if ($cart->getStatus() === CartStatus::Paid) {
+            throw new CartAlreadyPaidException();
+        }
+
+        if($cart->getItems()->isEmpty()) {
+            throw new CartEmptyException();
+        }
+
+        $tickets = $this->ticketService->issue($cart);
+
+        $cart->setStatus(CartStatus::Paid);
+
+        $this->auditService->stampUpdate($cart);
+
+        $this->cartRepository->flush();
+
+        return $tickets;
+    }
+
+    /**
+     * Returns the confirmation reference of this cart, derived from its identity.
+    */
+    public function confirmationOf(Cart $cart): string
+    {
+        $uuidString = $cart->getId()->toRfc4122();
+        $lastSix = strtoupper(substr($uuidString, -6));
+        $year = $cart->getCreatedAt()->format('Y');
+
+        return sprintf('ONTB-%s-%s', $year, $lastSix);
+    }
+
+    /**
+     * Maps a paid cart and its tickets onto the payload served by the payment endpoint.
+     *
+     * @param Ticket[] $tickets
+    */
+    public function toPayment(Cart $cart, array $tickets): CartPayOutput
+    {
+        return new CartPayOutput(
+            confirmation: $this->confirmationOf($cart),
+            tickets: array_map($this->ticketService->toList(...), $tickets),
+        );
     }
 }

@@ -11,7 +11,7 @@ final class CartPayInput
     public function __construct(
 
         #[ApiProperty(schema: [
-                'description' => "Méthode de paiement.",
+                'description' => "Méthode de paiement déclarée.",
                 'type' => 'string',
                 'example' => 'card',
                 'enum' => ['card', 'voucher'],
