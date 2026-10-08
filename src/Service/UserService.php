@@ -2,12 +2,14 @@
 
 namespace App\Service;
 
+use App\Dto\User\UserDetailsOutput;
+use App\Dto\User\UserProfilePictureInput;
+use App\Dto\User\UserRegisterInput;
+use App\Entity\Enum\DocumentType;
 use App\Entity\User;
 use App\Exception\User\EmailAlreadyUsedException;
 use App\Repository\UserRepository;
 use App\Service\Utils\AuditService;
-use App\Dto\User\UserDetailsOutput;
-use App\Dto\User\UserRegisterInput;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -18,6 +20,7 @@ class UserService
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditService $audit,
         private readonly LoggerInterface $domainLogger,
+        private readonly DocumentService $documentService,
     ) {}
 
     public function findOneByEmail(string $email): ?User
@@ -62,5 +65,27 @@ class UserService
             lastName: $user->getLastName(),
             createdAt: $user->getCreatedAt(),
         );
+    }
+
+    /**
+     * Stores a new profile picture for this user and soft-deletes the previous one,
+     * in a single write.
+    */
+    public function changeProfilePicture(User $user, UserProfilePictureInput $input): void
+    {
+
+        $newPicture = $this->documentService->store($input->file, DocumentType::ProfilePicture);
+
+        $previousPicture = $user->getProfilePicture();
+        
+        if ($previousPicture) {
+            $this->documentService->softDelete($previousPicture);
+        }
+            
+        $user->setProfilePicture($newPicture);
+        $this->audit->stampUpdate($user);
+        $this->userRepository->persist($user);
+
+        $this->userRepository->flush();
     }
 }

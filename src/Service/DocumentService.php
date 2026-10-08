@@ -59,8 +59,6 @@ class DocumentService
 
         return $document;
     }
-        
-    
 
     /**
      * Marks this document as deleted. Its file stays on the storage.

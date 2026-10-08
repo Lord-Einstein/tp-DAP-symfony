@@ -5,17 +5,19 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Dto\User\UserDetailsOutput;
 use App\Dto\User\UserRegisterInput;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\UserRepository;
 use App\State\User\UserMeProvider;
+use App\State\User\UserProfilePictureProcessor;
 use App\State\User\UserRegisterProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
-use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 
 
 #[ApiResource(
@@ -37,7 +39,30 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
             security: 'is_granted("ROLE_USER")',
             securityMessage: 'Vous devez être connecté pour accéder à cette page. ',
             provider: UserMeProvider::class
-        )
+        ),
+
+        new Post(
+            uriTemplate: '/users/me/profile-picture',
+            deserialize: false,
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            output: UserDetailsOutput::class,
+            processor: UserProfilePictureProcessor::class,
+            security: "is_granted('ROLE_USER')",
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    description: 'La nouvelle photo de profil',
+                    content: new \ArrayObject([
+                        'multipart/form-data' => ['schema' => [
+                            'type' => 'object',
+                            'properties' => ['file' => ['type' => 'string', 'format' => 'binary']],
+                            'required' => ['file'],
+                        ]],
+                    ]),
+                    required: true,
+                ),
+            ),
+        ),
+
     ]
 )]
 
