@@ -64,6 +64,7 @@ class UserService
             firstName: $user->getFirstName(),
             lastName: $user->getLastName(),
             createdAt: $user->getCreatedAt(),
+            profilePictureUrl: $user->getProfilePicture() ? $this->documentService->toSignedUrl($user->getProfilePicture()) : null,
         );
     }
 

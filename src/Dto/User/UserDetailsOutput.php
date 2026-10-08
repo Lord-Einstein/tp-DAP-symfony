@@ -64,5 +64,16 @@ final class UserDetailsOutput
         )]
         public ?string $lastName = null,
 
+        #[ApiProperty (
+            schema: [
+                'description' => "L'URL de la photo de profil de l'utilisateur.",
+                'type' => 'string',
+                'format' => 'url',
+                'example' => "https://localhost/api/documents/<id>/download?expires=<timestamp>&signature=<…>",
+                'nullable' => true,
+            ],
+        )]
+        public ?string $profilePictureUrl = null,
+
     ) {}
 }

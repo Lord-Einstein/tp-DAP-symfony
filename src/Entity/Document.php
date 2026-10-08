@@ -2,15 +2,46 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
 use App\Entity\Enum\DocumentType;
 use App\Entity\Impl\AbstractEntity;
 use App\Repository\DocumentRepository;
+use App\State\Document\DocumentDownloadProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: DocumentRepository::class)]
+#[ApiResource(
+   operations: [
+        new Get(
+            uriTemplate: '/documents/{id}/download',
+            name: 'document_download',
+            provider: DocumentDownloadProvider::class,
+            defaults: ['_signed' => true],
+            openapi: new OpenApiOperation(
+                // aucun jeton : c'est la signature de l'adresse qui protège
+                security: [],
+                parameters: [
+                    new Parameter('expires', 'query', 'Date d\'expiration de l\'adresse (timestamp)', true, schema: ['type' => 'integer']),
+                    new Parameter('signature', 'query', 'Signature de l\'adresse', true, schema: ['type' => 'string']),
+                ],
+                responses: [
+                    '200' => new OpenApiResponse(description: 'Le fichier', content: new \ArrayObject([
+                        'image/*' => ['schema' => ['type' => 'string', 'format' => 'binary']],
+                    ])),
+                    '403' => new OpenApiResponse(description: 'Signature absente, invalide ou expirée'),
+                    '404' => new OpenApiResponse(description: 'Document introuvable'),
+                ],
+            ),
+        ),
+    ],
+)]
 class Document extends AbstractEntity
 {
     #[ORM\Id]

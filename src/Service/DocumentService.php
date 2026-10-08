@@ -4,11 +4,15 @@ namespace App\Service;
 
 use App\Entity\Document;
 use App\Entity\Enum\DocumentType;
+use App\Exception\Document\DocumentNotFoundException;
 use App\Repository\DocumentRepository;
 use App\Service\Utils\AuditService;
 use App\Service\Utils\DocumentStorageResolver;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Component\Uid\Uuid;
+use CoopTilleuls\UrlSignerBundle\UrlSigner\UrlSignerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DocumentService
 {
@@ -16,6 +20,8 @@ class DocumentService
         private readonly DocumentStorageResolver $storageResolver,
         private readonly AuditService $auditService,
         private readonly DocumentRepository $documentRepository,
+        private readonly UrlSignerInterface $urlSigner,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ){}
 
     /**
@@ -66,6 +72,56 @@ class DocumentService
     public function softDelete(Document $document): void
     {
         $this->auditService->markDeleted($document);
+    }
+
+    /**
+     * Returns the document carrying this identifier.
+     *
+     * @throws DocumentNotFoundException when no live document carries this identifier
+    */
+    public function findOneById(Uuid $id): Document
+    {
+        $document = $this->documentRepository->find($id);
+
+        if($document === null) {
+            throw new DocumentNotFoundException();
+        }
+
+        return $document;
+    }
+
+    /**
+     * Opens a read stream on the stored file of this document.
+     *
+     * @return resource
+     *
+     * @throws DocumentNotFoundException when the file is missing from its storage
+    */
+    public function openStream(Document $document)
+    {
+        $storage = $this->storageResolver->resolve($document->getType());
+        
+        if ($storage->fileExists($document->getStorageKey()) === false) {
+            throw new DocumentNotFoundException();
+        }
+            
+        $stream = $storage->readStream($document->getStorageKey());
+        return $stream;
+    }
+
+    /**
+    * Builds the absolute, signed and expiring download URL of this document.
+    */
+    public function toSignedUrl(Document $document): string
+    {
+        $url = $this->urlGenerator->generate(
+                'document_download', 
+                ['id' => $document->getId(),], 
+                UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        /** @disregard */
+        return $this->urlSigner->sign($url, null);
     }
     
 }
